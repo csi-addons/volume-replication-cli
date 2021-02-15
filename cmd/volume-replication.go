@@ -15,6 +15,7 @@ func init() {
 	for _, cmd := range cmds {
 		volumereplication.AddCommand(cmd)
 		cmd.Flags().StringToString("parameters", nil, "parameters to send to backend")
+		cmd.Flags().StringToString("secrets", nil, "secrets to connect to backend storage")
 		cmd.Flags().Bool("force", false, "Perform force operation")
 		cmd.SilenceUsage = true
 	}
@@ -31,7 +32,7 @@ var enable = &cobra.Command{
 	Use:     `enable`,
 	Short:   "enable replication on a volume",
 	Long:    "enable replication on a volume",
-	Example: `enable --parameters=mode=snapshot --volumeID=xxx-xxxx-xxxx-xxxx-xxx`,
+	Example: `enable --parameters=mirroringMode=snapshot --volumeID=xxx-xxxx-xxxx-xxxx-xxx`,
 	RunE:    enableReplication,
 }
 
@@ -78,6 +79,10 @@ func enableReplication(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	secrets, err := cmd.Flags().GetStringToString("secrets")
+	if err != nil {
+		return err
+	}
 	grpcClient, err := newGRPCClient()
 	if err != nil {
 		return err
@@ -87,18 +92,16 @@ func enableReplication(cmd *cobra.Command, args []string) error {
 	req := &replication.EnableVolumeReplicationRequest{
 		VolumeId:   volumeID,
 		Parameters: parameters,
+		Secrets:    secrets,
 	}
-	timeout, err := cmd.PersistentFlags().GetDuration("timeout")
-	if err != nil {
-		return err
-	}
-	createCtx, cancel := context.WithTimeout(context.Background(), timeout)
+
+	createCtx, cancel := context.WithTimeout(context.Background(), config.timeout)
 	defer cancel()
-	resp, err := repClient.EnableVolumeReplication(createCtx, req)
+	_, err = repClient.EnableVolumeReplication(createCtx, req)
 	if err != nil {
 		return err
 	}
-	fmt.Println(resp)
+	fmt.Println("successfully enabled replication on the volume")
 	return nil
 }
 
@@ -110,6 +113,11 @@ func disableReplication(cmd *cobra.Command, args []string) error {
 	volumeID := args[0]
 
 	parameters, err := cmd.Flags().GetStringToString("parameters")
+	if err != nil {
+		return err
+	}
+
+	secrets, err := cmd.Flags().GetStringToString("secrets")
 	if err != nil {
 		return err
 	}
@@ -127,18 +135,16 @@ func disableReplication(cmd *cobra.Command, args []string) error {
 	req := &replication.DisableVolumeReplicationRequest{
 		VolumeId:   volumeID,
 		Parameters: parameters,
+		Secrets:    secrets,
 	}
-	timeout, err := cmd.PersistentFlags().GetDuration("timeout")
-	if err != nil {
-		return err
-	}
-	createCtx, cancel := context.WithTimeout(context.Background(), timeout)
+
+	createCtx, cancel := context.WithTimeout(context.Background(), config.timeout)
 	defer cancel()
-	resp, err := repClient.DisableVolumeReplication(createCtx, req)
+	_, err = repClient.DisableVolumeReplication(createCtx, req)
 	if err != nil {
 		return err
 	}
-	fmt.Println(resp)
+	fmt.Println("successfully disabled replication on the volume")
 	return nil
 }
 
@@ -150,6 +156,11 @@ func promoteVolume(cmd *cobra.Command, args []string) error {
 	volumeID := args[0]
 
 	parameters, err := cmd.Flags().GetStringToString("parameters")
+	if err != nil {
+		return err
+	}
+
+	secrets, err := cmd.Flags().GetStringToString("secrets")
 	if err != nil {
 		return err
 	}
@@ -167,18 +178,16 @@ func promoteVolume(cmd *cobra.Command, args []string) error {
 	req := &replication.PromoteVolumeRequest{
 		VolumeId:   volumeID,
 		Parameters: parameters,
+		Secrets:    secrets,
 	}
-	timeout, err := cmd.PersistentFlags().GetDuration("timeout")
-	if err != nil {
-		return err
-	}
-	createCtx, cancel := context.WithTimeout(context.Background(), timeout)
+
+	createCtx, cancel := context.WithTimeout(context.Background(), config.timeout)
 	defer cancel()
-	resp, err := repClient.PromoteVolume(createCtx, req)
+	_, err = repClient.PromoteVolume(createCtx, req)
 	if err != nil {
 		return err
 	}
-	fmt.Println(resp)
+	fmt.Println("successfully promoted the volume")
 	return nil
 }
 
@@ -198,6 +207,10 @@ func demoteVolume(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	secrets, err := cmd.Flags().GetStringToString("secrets")
+	if err != nil {
+		return err
+	}
 	grpcClient, err := newGRPCClient()
 	if err != nil {
 		return err
@@ -207,18 +220,15 @@ func demoteVolume(cmd *cobra.Command, args []string) error {
 	req := &replication.DemoteVolumeRequest{
 		VolumeId:   volumeID,
 		Parameters: parameters,
+		Secrets:    secrets,
 	}
-	timeout, err := cmd.PersistentFlags().GetDuration("timeout")
-	if err != nil {
-		return err
-	}
-	createCtx, cancel := context.WithTimeout(context.Background(), timeout)
+	createCtx, cancel := context.WithTimeout(context.Background(), config.timeout)
 	defer cancel()
-	resp, err := repClient.DemoteVolume(createCtx, req)
+	_, err = repClient.DemoteVolume(createCtx, req)
 	if err != nil {
 		return err
 	}
-	fmt.Println(resp)
+	fmt.Println("successfully demoted the volume")
 	return nil
 }
 
@@ -230,6 +240,11 @@ func resyncVolume(cmd *cobra.Command, args []string) error {
 	volumeID := args[0]
 
 	parameters, err := cmd.Flags().GetStringToString("parameters")
+	if err != nil {
+		return err
+	}
+
+	secrets, err := cmd.Flags().GetStringToString("secrets")
 	if err != nil {
 		return err
 	}
@@ -247,17 +262,15 @@ func resyncVolume(cmd *cobra.Command, args []string) error {
 	req := &replication.ResyncVolumeRequest{
 		VolumeId:   volumeID,
 		Parameters: parameters,
+		Secrets:    secrets,
 	}
-	timeout, err := cmd.PersistentFlags().GetDuration("timeout")
-	if err != nil {
-		return err
-	}
-	createCtx, cancel := context.WithTimeout(context.Background(), timeout)
+
+	createCtx, cancel := context.WithTimeout(context.Background(), config.timeout)
 	defer cancel()
-	resp, err := repClient.ResyncVolume(createCtx, req)
+	_, err = repClient.ResyncVolume(createCtx, req)
 	if err != nil {
 		return err
 	}
-	fmt.Println(resp)
+	fmt.Println("successfully resynced the volume")
 	return nil
 }
