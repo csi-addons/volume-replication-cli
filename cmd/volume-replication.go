@@ -267,10 +267,10 @@ func resyncVolume(cmd *cobra.Command, args []string) error {
 
 	createCtx, cancel := context.WithTimeout(context.Background(), config.timeout)
 	defer cancel()
-	_, err = repClient.ResyncVolume(createCtx, req)
+	resp, err := repClient.ResyncVolume(createCtx, req)
 	if err != nil {
 		return err
 	}
-	fmt.Println("successfully resynced the volume")
+	fmt.Printf("successfully resynced the volume. Volume ready to use=%v\n", resp.Ready)
 	return nil
 }
