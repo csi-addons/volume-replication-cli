@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -55,18 +54,6 @@ func newGRPCClient() (*grpc.ClientConn, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	err = client.Probe(grpcClient, config.timeout)
-	if err != nil {
-		return nil, err
-	}
-
-	// Autodetect provisioner name
-	provisionerName, err := client.GetDriverName(grpcClient, config.timeout)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Printf("Detected CSI driver %s\n", provisionerName)
 	return grpcClient, nil
 }
 
