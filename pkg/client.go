@@ -7,12 +7,13 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/kubernetes-csi/csi-lib-utils/connection"
+	"github.com/kubernetes-csi/csi-lib-utils/metrics"
 	"github.com/kubernetes-csi/csi-lib-utils/rpc"
 )
 
 // Connect to the GRPC client
 func Connect(address string) (*grpc.ClientConn, error) {
-	return connection.Connect(address, nil, connection.OnConnectionLoss(connection.ExitOnConnectionLoss()))
+	return connection.Connect(address, metrics.NewCSIMetricsManager(""), connection.OnConnectionLoss(connection.ExitOnConnectionLoss()))
 }
 
 // Probe the GRPC client once
