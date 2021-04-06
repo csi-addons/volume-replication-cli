@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	client "github.com/kube-storage/volume-replication-cli/pkg"
+	client "github.com/csi-addons/volume-replication-cli/pkg"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 )

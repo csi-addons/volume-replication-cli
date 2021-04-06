@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	replication "github.com/kube-storage/spec/lib/go"
+	"github.com/csi-addons/spec/lib/go/replication"
 	"github.com/spf13/cobra"
 )
 
