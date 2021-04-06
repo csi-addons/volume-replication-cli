@@ -1,0 +1,32 @@
+name: test
+
+on:
+  pull_request:
+    branches: ["*"]
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go: ["1.15"]
+    steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: go test
+        run: |
+          GOPATH=$(go env GOPATH) go test ./...
+      - name: go vet
+        run: |
+          GOPATH=$(go env GOPATH) go vet ./...
+      - name: go build
+        run: |
+          GOPATH=$(go env GOPATH) go build -o cli main.go
