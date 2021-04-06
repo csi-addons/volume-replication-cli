@@ -18,7 +18,7 @@ package main
 import (
 	"os"
 
-	"github.com/kube-storage/volume-replication-cli/cmd"
+	"github.com/csi-addons/volume-replication-cli/cmd"
 )
 
 func main() {
